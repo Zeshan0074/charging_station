@@ -8,15 +8,15 @@ import Footer from "@/components/footer/Footer";
 export default function RootLayout({ children }) {
   return (
     <Providers>
-        <html lang="en">
-          <head>
-          </head>
-          <body className={` antialiased`}>
-            <Header />
-            {children}
-            <Footer />
-          </body>
-        </html>
+      <html lang="en">
+        <head>
+        </head>
+        <body className={` antialiased`}>
+          <Header />
+          {children}
+          <Footer />
+        </body>
+      </html>
     </Providers>
   );
 }
