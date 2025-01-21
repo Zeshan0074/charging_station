@@ -117,7 +117,7 @@ const Profile = () => {
 
   const handleDeleteProfile = () => {
     setIsDeleteModalOpen(false);
-    toast.info("Delete profile functionality coming soon!");
+    toast.success("Delete profile functionality coming soon!");
   };
 
   if (loading) {
