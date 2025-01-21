@@ -22,7 +22,7 @@ export async function GET(request) {
     // SQL query to fetch data based on the email
     const query = `
       SELECT 
-        email, phone, streetAddress, city, state, country, chargerType, stationStartTime, stationEndTime 
+        name , email, phone, streetAddress, city, state, country, chargerType, stationStartTime, stationEndTime 
       FROM users
       WHERE email = @Email
     `;

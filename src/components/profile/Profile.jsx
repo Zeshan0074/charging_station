@@ -9,7 +9,7 @@ const Profile = () => {
   const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [reservedTimes, setReservedTimes] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentField, setCurrentField] = useState(null);
   const [tempValue, setTempValue] = useState("");
@@ -38,9 +38,33 @@ const Profile = () => {
       } finally {
         setLoading(false);
       }
+
+    //Get Reserved Data API 
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/getReservedCharger?providerEmail=${data.user.email}`,
+        {
+          method: "GET",
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setReservedTimes(result?.bookings || []);
+      } else {
+        setError(result.error || "Failed to fetch reserved times.");
+      }
+    } catch (err) {
+    } finally {
+      setLoading(false);
+    }
+ 
     };
 
     fetchData();
+
+  
   }, [data, status]);
 
   const openModal = (field) => {
@@ -122,6 +146,10 @@ const Profile = () => {
 
       <div className="space-y-6">
         <div>
+          <h3 className="text-gray-700 font-medium">Name</h3>
+          <p className="text-gray-600">{formData.name}</p>
+        </div>
+        <div>
           <h3 className="text-gray-700 font-medium">Email</h3>
           <p className="text-gray-600">{formData.email}</p>
         </div>
@@ -175,14 +203,39 @@ const Profile = () => {
           </p>
         </div>
 
-        <div>
-          <h3 className="text-gray-700 font-medium">Reserved Time</h3>
-          <p className="text-gray-600">
-            Start: <span className="text-primary">{formatTime(formData.startTime) || "N/A"}</span>
-            <br />
-            End: <span className="text-primary">{formatTime(formData.endTime) || "N/A"}</span>
-          </p>
-        </div>
+        <div className="mx-2 max-w-3xl md:mx-auto p-8 bg-secondary rounded shadow-lg mt-12">
+      <h2 className="font-semibold text-xl md:text-2xl lg:text-3xl text-center text-gray-800 mb-8">
+        Reserved Times
+      </h2>
+
+      {reservedTimes.length > 0 ? (
+        <ul className="space-y-4">
+          {reservedTimes.map((time, index) => (
+            <li
+              key={index}
+              className="p-4 bg-gray-100 rounded-lg shadow flex justify-between items-center"
+            >
+              <div>
+                <p className="text-gray-700 font-medium">User Email:</p>
+                <p className="text-gray-600">{time.email}</p>
+              </div>
+              <div>
+                <p className="text-gray-700 font-medium">Start Time:</p>
+                <p className="text-gray-600">{time.startTime}</p>
+              </div>
+              <div>
+                <p className="text-gray-700 font-medium">End Time:</p>
+                <p className="text-gray-600">{time.endTime}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-center text-gray-700 font-normal text-lg">
+          No reserved times found.
+        </p>
+      )}
+    </div>
 
         <div className="mt-6">
           <button

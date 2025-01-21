@@ -29,7 +29,7 @@ export async function GET(req) {
     if (bookings.length === 0) {
       return NextResponse.json(
         { message: "No bookings found for this provider" },
-        { status: 404 }
+        { status: 200 }
       );
     }
 

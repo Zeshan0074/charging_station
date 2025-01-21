@@ -1,9 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { FaUserCircle } from "react-icons/fa";
 import LoginModal from "../auth/Login";
+import { useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 
 const headerVariants = {
   hidden: { opacity: 0 },
@@ -14,13 +16,40 @@ const Header = () => {
   const navItems = [{ label: "Search For Station", link: "/location" }];
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { data, status } = useSession();
+  const [registered, setRegistered] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (status === "authenticated" && data?.user?.email) {
+          const response = await fetch(
+            `http://localhost:3000/api/getRegisterCharger?email=${data.user.email}`,
+            {
+              method: "GET",
+            }
+          );
+
+          const result = await response.json();
+          if (response.ok && result.data[0]?.city) {
+            setRegistered(true);
+            console.log("Register", registered);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching register charger:", err);
+      }
+    };
+
+    fetchData();
+  }, [data, status]);
+
   return (
     <motion.header
-      className="relative w-full bg-secondary z-20"
+      className="relative w-full bg-secondary z-20 text-black"
       variants={headerVariants}
       initial="hidden"
       animate="visible"
@@ -54,24 +83,37 @@ const Header = () => {
           </button>
           {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-md overflow-hidden">
-              <button
-                onClick={openModal}
-                className="block w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-200"
-              >
-                Login
-              </button>
-              <Link
-                href="/signup"
-                className="block px-4 py-2 text-sm text-black hover:bg-gray-200"
-              >
-                Signup
-              </Link>
+              {status !== "authenticated" ? (
+                <button
+                  onClick={openModal}
+                  className="block w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-200"
+                >
+                  SignIn
+                </button>
+              ) : (
+                <button
+                  onClick={signOut}
+                  className="block w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-200"
+                >
+                  SignOut
+                </button>
+              )}
+              {data && !registered && (
+                <Link
+                  href="/registerCharger"
+                  className="block px-4 py-2 text-sm text-black hover:bg-gray-200"
+                >
+                  Register Charger
+                </Link>
+              )}
+{data && 
               <Link
                 href="/profile"
                 className="block px-4 py-2 text-sm text-black hover:bg-gray-200"
               >
                 Profile
               </Link>
+}
             </div>
           )}
         </div>
